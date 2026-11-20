@@ -1,0 +1,5 @@
+GSE81608_donor,GSE86469_donor,disease_group,age,sex_normalized,interpretation
+Non T2D 4,ACIB065,ND,56,F,demographic_candidate_only_not_identity_evidence
+Non T2D 7,ACEL337,ND,29,M,demographic_candidate_only_not_identity_evidence
+T2D 3,ACIW009,T2D,55,F,demographic_candidate_only_not_identity_evidence
+T2D 6,ACCR015A,T2D,51,M,demographic_candidate_only_not_identity_evidence

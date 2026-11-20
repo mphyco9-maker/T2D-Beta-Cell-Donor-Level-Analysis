@@ -1,0 +1,7 @@
+{
+  "url": "https://ftp.ncbi.nlm.nih.gov/gene/DATA/gene2ensembl.gz",
+  "sha256": "f564a28e2ef07bfbd6cbb894cbfdf32156d4bff94fbefd902fa4ba7b03164c0b",
+  "file_bytes": 316609551,
+  "taxon": "Homo sapiens 9606",
+  "reference": "Current NCBI mapping; compare original GRCh37 annotation before using"
+}

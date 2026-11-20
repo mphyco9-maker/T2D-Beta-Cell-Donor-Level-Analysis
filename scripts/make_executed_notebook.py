@@ -1,0 +1,23 @@
+from pathlib import Path
+import nbformat
+from nbclient import NotebookClient
+ROOT=Path(__file__).resolve().parents[1]
+nb=nbformat.v4.new_notebook()
+nb.metadata['kernelspec']={'display_name':'Python 3','language':'python','name':'python3'}
+nb.metadata['language_info']={'name':'python'}
+nb.cells=[
+ nbformat.v4.new_markdown_cell('''# CURRENT | T2D β-cell donor-level exploratory analysis\n**GSE81608 (Xin) + GSE86469 (Lawlor)**, analyzed separately. Replaces prior exploratory notebook.\n\nThis executed notebook calls the same checked-in script used to generate current results. **No differential-expression tests or pathway analyses are run.** Input expression and metadata must be in the `data/` paths described in README.\n\n**IMPORTANT:** Xin input is RPKM, whose donor summaries are means of log2(1+RPKM), not count pseudobulks. Lawlor expected counts remain fractional and are summed without arbitrary rounding; logCPM is exploratory. Gene mapping and donor independence are not yet fully settled.'''),
+ nbformat.v4.new_code_cell('''from pathlib import Path\nimport sys, subprocess, pandas as pd, numpy as np, matplotlib\nROOT=Path.cwd()\nif not (ROOT/'scripts'/'run_exploratory.py').exists() and (ROOT.parent/'scripts'/'run_exploratory.py').exists():\n    ROOT=ROOT.parent\nassert (ROOT/'scripts'/'run_exploratory.py').exists(), 'Run this notebook from the repository root or notebooks/ directory'\nprint('Repository:',ROOT)\nprint('Python:',sys.version.split()[0], 'pandas:',pd.__version__, 'numpy:',np.__version__,'matplotlib:',matplotlib.__version__)\nfor f in sorted((ROOT/'data'/'expression').glob('*.csv')):print(f.name,round(f.stat().st_size/1e6,1),'MB')'''),
+ nbformat.v4.new_markdown_cell('''## Full reproducible QC and donor aggregation\nThe analysis script reads all expression entries in batches and creates the donor expression matrices, marker plots, manifest, audit, PCA, and group demographics. It only uses original sample cell types and groups, checks for missing/negative entries, and **does not discard any donors**. The full runnable code is `scripts/run_exploratory.py`.'''),
+ nbformat.v4.new_code_cell('''import subprocess\nproc=subprocess.run([sys.executable,str(ROOT/'scripts'/'run_exploratory.py')],cwd=ROOT,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)\nprint(proc.stdout[-10000:])\nif proc.stderr:print('Messages:',proc.stderr[-1600:])\nassert proc.returncode==0, f'Exploration script failed with exit code {proc.returncode}'\nprint('CURRENT WORKFLOW EXECUTED SUCCESSFULLY')'''),
+ nbformat.v4.new_markdown_cell('''## Match and QC tables\nThese output tables come from this execution, not from archived Task 1 files. β-cell donor units are biological replicates; individual cells are not used as independent donors.'''),
+ nbformat.v4.new_code_cell('''from IPython.display import display\nfor relative in ['results/qc/matching_audit_CURRENT.csv','results/qc/expression_qc_CURRENT.csv','results/qc/donor_group_demographics_CURRENT.csv']:\n print('\\n'+relative)\n display(pd.read_csv(ROOT/relative))'''),
+ nbformat.v4.new_markdown_cell('''## Donor-level exploratory plots\nPCA is unsupervised and descriptive. An unusual point is a flag for investigation, **not a justification for exclusion or a disease association**.'''),
+ nbformat.v4.new_code_cell('''from IPython.display import Image, display\nfor ds in ['GSE81608','GSE86469']:\n print(ds+' donor-level PCA')\n display(Image(filename=str(ROOT/'results'/'figures'/(ds+'_donor_PCA.png')),width=700))\n print(ds+' original-annotation marker check')\n display(Image(filename=str(ROOT/'results'/'figures'/(ds+'_marker_annotation_check.png')),width=800))'''),
+ nbformat.v4.new_markdown_cell('''## Outstanding gates\n1. Obtain the full NCBI GeneID -> Ensembl crosswalk, report unmapped/ambiguous IDs, compare annotation build. Only four markers are verified in the present offline mapping.\n2. Investigate published Xin 1,492 vs deposited 1,600 cells; do not automatically remove 108.\n3. Confirm cross-study donor independence from study provenance, not merely labels.\n4. Verify original RSEM expected count quantification/normalization before selecting Lawlor DE method.\n5. Supervisor approval of `protocol/Two_Page_Statistical_Protocol_FOR_REVIEW.pdf` **before any differential-expression testing**.'''),
+]
+client=NotebookClient(nb,timeout=900,kernel_name='python3',resources={'metadata':{'path':str(ROOT)}})
+nb=client.execute()
+out=ROOT/'notebooks'/'T2D_Task2_Exploratory_EXECUTED.ipynb'
+nbformat.write(nb,str(out))
+print(out,'executed counts',[c.get('execution_count') for c in nb.cells if c.cell_type=='code'],'bytes',out.stat().st_size)

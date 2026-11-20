@@ -1,0 +1,9 @@
+# Large original expression data are NOT tracked on GitHub.
+data/expression/*.csv
+data/geo_downloads/
+reference/*.gz
+.ipynb_checkpoints/
+__pycache__/
+*.pyc
+.DS_Store
+archive_previous/
