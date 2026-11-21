@@ -12,7 +12,7 @@ Assess whether candidate associations between type 2 diabetes (T2D) and pancreat
 
 - Repaired the formerly malformed dataset inventory as `documentation/dataset_inventory_CURRENT.csv` (readable with `pandas.read_csv`).
 - Regenerated numerical QC, cell-to-metadata matching, and nonempty marker plots; INS, GCG, SST, and PPY identifiers are present in both matrices.
-- Consolidated the executable exploratory workflow in `scripts/run_exploratory.py`; an executed notebook is included at `notebooks/T2D_Task2_Exploratory_EXECUTED.ipynb` (rerun before final submission to confirm its stored outputs match the current release). Prior outputs are retained under `archive_previous/` in the handoff, not treated as current.
+- Consolidated the executable exploratory workflow in `scripts/run_exploratory.py`; an executed notebook is included at `notebooks/T2D_Task2_Exploratory_EXECUTED.ipynb` (rerun before final submission to confirm its stored outputs match the current release). Prior outputs are retained locally under `archive_previous/`, excluded from GitHub via `.gitignore`, and not treated as current.
 - Created separate donor-level β-cell matrices, donor metadata, PCA, expression distributions, and outlier-review flags. **No donors were excluded.**
 - Replaced the requested core literature comparison with **Xin (2016), Lawlor (2017), and Squair (2021)**; Marques (2022) and other papers are additional literature.
 - Removed the unsupported **“94.1% agreement”** statement.
@@ -36,7 +36,35 @@ The supplied local converted CSVs were validated against metadata, with **2,238 
 
 **Integrity caveat:** `documentation/INPUT_SHA256SUMS.txt` checksums correspond to the **converted local CSV inputs**, not original GEO `.gz` archives. The downloaded originals and conversion procedure must be separately documented and checked if used to reconstruct the local files. `python scripts/download_GEO_inputs.py` downloads original compressed inputs; it does **not** by itself recreate byte-identical converted CSVs.
 
-**GitHub/storage status:** GitHub upload and public/shared-storage links have **not** been confirmed. The large `data/expression/*.csv` files are excluded by `.gitignore`. Before presenting the repository as independently reproducible, publish the input files at real, accessible locations, add retrieval steps, and verify checksums. Do not insert invented URLs.
+### Retrieve large expression datasets (required for reproduction)
+
+**Current GitHub repository (private):** https://github.com/mphyco9-maker/T2D-Beta-Cell-Donor-Level-Analysis (branch `main`; initial local commit `199701a` was pushed and the online file listing was inspected). Authorized collaborators need GitHub access.
+
+**Google Drive folder (restricted):** https://drive.google.com/drive/folders/1MXyVBVMwaqwMadmcqe7IQgHroHUdVXNE?usp=sharing
+
+1. Ask the repository/data owner to grant your Google account **Viewer** permission to the Drive folder. Having the link alone does not grant access.
+2. Download both files **as CSV** without opening/re-saving or converting them through Google Sheets:
+   - `GSE81608_expression_RPKM.csv` (Xin; approx. 169.3 MB shown in Drive)
+   - `GSE86469_expression_RSEM_expected_counts.csv` (Lawlor; approx. 46.1 MB shown in Drive)
+3. In your cloned/extracted repository, create `data/expression/` if necessary and place the downloaded files there with these **exact filenames**. This path is excluded from Git by `.gitignore`.
+4. From the repository root, validate the **downloaded** bytes against the SHA-256 values below before running any analysis. On Windows Command Prompt:
+
+   ```cmd
+   certutil -hashfile "data\expression\GSE81608_expression_RPKM.csv" SHA256
+   certutil -hashfile "data\expression\GSE86469_expression_RSEM_expected_counts.csv" SHA256
+   ```
+
+   On macOS/Linux use `shasum -a 256 data/expression/*.csv` or `sha256sum data/expression/*.csv` (depending on system).
+
+   | Converted CSV file | Required SHA-256 |
+   |---|---|
+   | `GSE81608_expression_RPKM.csv` | `8699e29653c0fa223b5d2ba577900a56a51fa857e878f3575cefeeaf6b244f57` |
+   | `GSE86469_expression_RSEM_expected_counts.csv` | `61aed6a8f8905f047232ef447f40e42623e6b5b4a2bc6d46e5914ac91bb73f43` |
+
+5. Once the checksums match, follow the commands in Section 4. If either hash differs, **do not proceed**; re-download and investigate the mismatch.
+
+**Verification boundary:** These SHA-256 values were verified against the two **local converted CSVs** on 21 November 2026. The Google Drive listing shows both files, but the hashes of files downloaded back from Drive have **not yet been independently verified**. These hashes are not for the GEO `.gz` originals. Access for the supervisor remains to be granted if not already shared. The research/analysis is still subject to supervisor approval for DE.
+
 
 ## 4. Reproducibility and current outputs
 
@@ -64,12 +92,12 @@ The Windows user run on 20 November 2026 completed with Python **3.14.7** and re
 - `documentation/GSE81608_gene_identifier_mapping_COMPLETED.csv`: later NCBI-based GeneID-to-Ensembl crosswalk, distinct from the original preliminary mapping file.
 - `documentation/GSE86469_gene_identifier_mapping.csv`: 26,616 supplied Ensembl stable-format gene IDs; original annotation documented as Ensembl v70, GRCh37; individual reference membership still needs version-specific review.
 - `reference/NCBI_gene2ensembl_metadata.json`: download URL and SHA-256 for the NCBI mapping reference generated during the user's mapping run. The `.gz` reference itself is ignored by Git and must be retrievable.
-- `documentation/Xin_108_cell_search_log.md`: **updated** primary-source explanation; `Xin_108_cell_search_log_PREVIOUS.md` is an archive copy.
+- `documentation/Xin_108_cell_search_log.md`: **updated** primary-source explanation; the earlier `Xin_108_cell_search_log_PREVIOUS.md` is stored locally in `archive_previous/` (not tracked in GitHub).
 - `documentation/Donor_Overlap_Provenance_Check.md`: updated source comparison and unresolved independence status.
-- `protocol/Two_Page_Statistical_Protocol_UPDATED_FOR_REVIEW.pdf`: **current protocol for supervisor review**. `protocol/Two_Page_Statistical_Protocol_PREVIOUS.pdf`: archived earlier draft.
+- `protocol/Two_Page_Statistical_Protocol_UPDATED_FOR_REVIEW.pdf`: **current protocol for supervisor review**. The earlier `Two_Page_Statistical_Protocol_PREVIOUS.pdf` is stored locally in `archive_previous/` (not tracked in GitHub).
 - `documentation/Literature_Comparison.md`, `documentation/Contribution_and_Open_Issues.md`: requested papers, contribution and remaining limitations.
 
-The file paths above describe the **current Windows project after the documented manual updates**, not the untouched original ZIP. Before GitHub publication, verify each path exists in the actual commit.
+The version-controlled paths above describe the **current GitHub `main` branch** after manual updates, not the untouched Task 1 ZIP. Locally archived previous outputs are intentionally absent from that GitHub branch.
 
 ### Numerical verification completed during the Windows run
 
@@ -120,7 +148,7 @@ Current proposed analysis is specified in `protocol/Two_Page_Statistical_Protoco
 2. Attempt to recover the original Xin excluded 108 cell IDs (or document the limitation and pre-specified sensitivity analysis).
 3. Resolve biological donor overlap where possible from procurement or intake records; otherwise retain explicit uncertainty.
 4. Rerun and save **the executed notebook** with the final current documents, figures, manifest and environment record; ensure the README, protocol and submission status identify one consistent version.
-5. Publish the repository to **GitHub**; provide real accessible data-storage URLs and independently check recorded SHA-256 values and reconstruction instructions.
+5. **Repository pushed to private GitHub, and the restricted Google Drive folder link is recorded in Section 3.** Still required: grant supervisor access to both GitHub and Drive; independently re-download the shared CSVs and verify their recorded SHA-256 checksums; confirm reconstruction instructions work on a fresh machine.
 6. Assign actual four-member names to the deliverables and ensure each member can explain the full workflow.
 7. Obtain supervisor review of the statistical protocol **before** running DE; defer pathway analysis.
 
